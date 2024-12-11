@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import jwt from "jsonwebtoken"
 
-const userAuth = asyncHandler(async () => {
+const userAuth = asyncHandler(async (req, res, next) => {
     const token = req.cookies.token
     if (!token) {
         throw new ApiError(401, "Unauthorized Request")

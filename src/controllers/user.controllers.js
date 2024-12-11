@@ -2,6 +2,7 @@ import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiResponse } from "../utils/apiResponse.js"
 import { ApiError } from "../utils/apiError.js"
+import { validationResult } from "express-validator"
 
 const cookieOptions = {
     httpOnly: true,
@@ -22,17 +23,10 @@ const generateTokenForCookies = async (user) => {
 
 const register = asyncHandler(async (req, res) => {
     const { fullName, email, password } = req.body
+    const errors = validationResult(req)
 
-    if (!fullName || !email || !password) {
-        throw new ApiError(400, "All fields are required")
-    }
-
-    if (password.length < 8) {
-        throw new ApiError(400, "Password must be at least 6 characters")
-    }
-
-    if (!email.includes("@")) {
-        throw new ApiError(400, "Invalid email")
+    if(!errors.isEmpty()){
+        throw new ApiError(400, errors.array()[0].msg)
     }
 
     const existedUser = await User.findOne({ email })
