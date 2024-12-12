@@ -67,13 +67,13 @@ const login = asyncHandler(async (req, res) => {
     const driver = await Driver.findOne({ email })
 
     if(!driver){
-        throw new ApiError(400, "Driver does not exist")
+        throw new ApiError(400, "Invalid Email")
     }
 
     const isMatch = await driver.matchPassword(password)
 
     if(!isMatch){
-        throw new ApiError(400, "Invalid credentials")
+        throw new ApiError(400, "Invalid Password")
     }
 
     const token = await generateTokenForCookies(driver)

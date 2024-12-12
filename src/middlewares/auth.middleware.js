@@ -12,13 +12,16 @@ const userAuth = asyncHandler(async (req, res, next) => {
 
     const userId = jwt.decode(token, process.env.JWT_SECRET)
 
-    const user = await User.findOne({ _id: userId }) || await Driver.findOne({ _id: userId })
-
-    if(!user) {
-        throw new ApiError(404, "User not Found")
+    const user = await User.findOne({ _id: userId })
+    const driver = await Driver.findOne({ _id: userId })
+    if (user) {
+        req.user = user
+    }else{
+        req.driver = driver
     }
-
-    req.user = user
+    if (!user && !driver) {
+        throw new ApiError(404, "Something went wrong")
+    }
 
     next()
 })

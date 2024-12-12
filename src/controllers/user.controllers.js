@@ -58,13 +58,13 @@ const Login = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email })
 
     if (!user) {
-        throw new ApiError(400, "User does not exist")
+        throw new ApiError(400, "Invalid Email")
     }
 
     const isMatch = await user.matchPassword(password)
 
     if (!isMatch) {
-        throw new ApiError(400, "Invalid credentials")
+        throw new ApiError(400, "Invalid Password")
     }
 
     const token = await generateTokenForCookies(user)
