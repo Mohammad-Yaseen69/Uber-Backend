@@ -22,10 +22,10 @@ const generateTokenForCookies = async (user) => {
 }
 
 const register = asyncHandler(async (req, res) => {
-    const { fullName, email, password } = req.body
+    const { fullName, email, password, profilePic } = req.body
     const errors = validationResult(req)
 
-    if(!errors.isEmpty()){
+    if (!errors.isEmpty()) {
         throw new ApiError(400, errors.array()[0].msg)
     }
 
@@ -38,7 +38,8 @@ const register = asyncHandler(async (req, res) => {
     const user = await User.create({
         fullName,
         email,
-        password
+        password,
+        profilePic: profilePic || ""
     })
 
     if (!user) {
@@ -92,9 +93,27 @@ const getUser = asyncHandler(async (req, res) => {
     )
 })
 
+const updateUser = asyncHandler(async (req, res) => {
+    const { fullName, profilePic } = req.body
+
+    const obj = {}
+
+    if (fullName) obj.fullName = fullName
+    if (profilePic) obj.profilePic = profilePic
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id, obj,
+        { new: true }).select("-password -__v -createdAt -updatedAt")
+
+    return res.status(200).json(
+        new ApiResponse(200, user, "User updated successfully")
+    )
+})
+
 export {
     register,
     Login,
     logout,
-    getUser
+    getUser,
+    updateUser
 }

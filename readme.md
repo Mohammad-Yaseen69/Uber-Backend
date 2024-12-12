@@ -22,6 +22,7 @@ This document outlines the API functionalities for user registration, login, and
 **fullName:** Minimum length of 3 characters.  
 **email:** Must be a valid email address.  
 **password:** Minimum length of 8 characters.  
+**profilePic** (Optional) Pfp url from image bb servers.
 
 **Response (Success):**
 ```json
@@ -40,7 +41,6 @@ This document outlines the API functionalities for user registration, login, and
 }
 ```
 **Response (Error):**
-
 
 ```json
 {
@@ -111,7 +111,7 @@ The API uses a custom error handler (ApiError) for consistency. Errors are retur
 }
 ```
 
-## **4. Fetch User Details**
+## 4. Fetch User Details
 
 **Endpoint:** `/users/get-user`  
 **Method:** GET  
@@ -134,6 +134,37 @@ The API uses a custom error handler (ApiError) for consistency. Errors are retur
 }
 
 ```
+
+## 4. Update User
+**Endpoint:** `/users/update-user`  
+**Method:** POST
+
+**Description:** This endpoint allows authenticated users to update their user information, such as their full name and profile picture.
+
+**Request Body:**
+
+```json
+{
+  "fullName": "John Doe Updated",
+  "profilePic": "newProfilePicUrl"
+}
+```
+**Response (Success):**
+
+```json
+{
+  "status": 200,
+  "data": {
+    "_id": "userId",
+    "fullName": "John Doe Updated",
+    "profilePic": "newProfilePicUrl",
+    "updatedAt": "2024-12-11T12:45:56Z"
+  },
+  "message": "User updated successfully"
+}
+```
+
+
 The API provides two main types of errors:
 
 - **400 Bad Request:** Invalid input or missing required fields.   
