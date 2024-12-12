@@ -46,11 +46,9 @@ const driverSchema = new mongoose.Schema({
     location: {
         latitude: {
             type: Number,
-            required: true
         },
         longitude: {
             type: Number,
-            required: true
         }
     },
     profilePic: String,
