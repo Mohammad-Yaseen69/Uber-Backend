@@ -4,8 +4,7 @@ This document outlines the API functionalities for user registration, login, and
 
 ## 1. Register a User
 
-**Endpoint:** `/users/register`
-
+**Endpoint:** `/users/register`  
 **Method:** POST
 
 **Description:** This endpoint allows users to create a new account by providing their full name, email address, and password it also generate JWT token and sent in a cookie.
@@ -20,12 +19,11 @@ This document outlines the API functionalities for user registration, login, and
 }
 ```
 
-fullName: Minimum length of 3 characters.
-email: Must be a valid email address.
-password: Minimum length of 8 characters.
-Response (Success):
+**fullName:** Minimum length of 3 characters.  
+**email:** Must be a valid email address.  
+**password:** Minimum length of 8 characters.  
 
-
+**Response (Success):**
 ```json
 {
   "status": 201,
@@ -41,7 +39,7 @@ Response (Success):
   "message": "User created successfully"
 }
 ```
-Response (Error):
+**Response (Error):**
 
 
 ```json
@@ -52,13 +50,12 @@ Response (Error):
 ```
 ## 2. Login User
 
-**Endpoint:** `/users/register`
+**Endpoint:** `/users/register`  
+**Method:** POST
 
-Method: POST
+**Description:** This endpoint allows existing users to log in. Upon successful login, a JWT token is generated and sent in a cookie.
 
-Description: This endpoint allows existing users to log in. Upon successful login, a JWT token is generated and sent in a cookie.
-
-Request Body:
+**Request Body:**
 
 ```json
 {
@@ -66,7 +63,7 @@ Request Body:
   "password": "password123"
 }
 ```
-Response (Success):
+**Response (Success):**
 
 ```json
 {
@@ -79,9 +76,7 @@ Response (Success):
   "message": "User logged in successfully"
 }
 ```
-Response (Error):
-
-JSON
+**Response (Error):**
 
 ```json
 {
@@ -90,15 +85,12 @@ JSON
 }
 ```
 ## 3. Logout a User
-**Endpoint:** `/users/logout`
+**Endpoint:** `/users/logout`  
+**Method:** GET
 
-Method: GET
+**Description:** This endpoint logs out a user by clearing the JWT token stored in the cookies.
 
-Description: This endpoint logs out a user by clearing the JWT token stored in the cookies.
-
-Response (Success):
-
-JSON
+**Response (Success):**
 
 ```json
 {
@@ -110,9 +102,7 @@ JSON
 Error Handling
 The API uses a custom error handler (ApiError) for consistency. Errors are returned in the following format:
 
-Example Error Response:
-
-JSON
+**Example Error Response:**
 
 ```json
 {
@@ -120,10 +110,34 @@ JSON
   "message": "All fields are required"
 }
 ```
+
+## **4. Fetch User Details**
+
+**Endpoint:** `/users/get-user`  
+**Method:** GET  
+
+**Description:** Fetches the details of the logged-in user based on their unique ID. The response excludes sensitive information such as the password and system-generated timestamps.
+
+
+**Response (Success):**
+```json
+{
+  "status": 200,
+  "data": {
+    "_id": "userId",
+    "fullName": "John Doe",
+    "email": "john.doe@example.com",
+    "profilePic": null,
+    "socketId": null
+  },
+  "message": "User fetched successfully"
+}
+
+```
 The API provides two main types of errors:
 
-400 Bad Request: Invalid input or missing required fields. 
-500 Internal Server Error: Something went wrong on the server.
-Security
-JWT Authentication: Tokens are used for secure authentication. They are stored in an httpOnly cookie and are required for secure routes.
-Password Hashing: Passwords are hashed using bcrypt before being stored in the database to ensure security.
+- **400 Bad Request:** Invalid input or missing required fields.   
+- **401 Unauthorized Request:** When trying to request a protected route only accessable with token.   
+- **500 Internal Server Error:** Something went wrong on the server.  
+- **Security JWT Authentication:** Tokens are used for secure authentication. They are stored in an httpOnly cookie and are required for secure routes.  
+- **Password Hashing:** Passwords are hashed using bcrypt before being stored in the database to ensure security.

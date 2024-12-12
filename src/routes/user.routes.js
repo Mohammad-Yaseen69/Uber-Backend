@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { Login, register, logout } from "../controllers/user.controllers.js"
+import { Login, register, logout, getUser } from "../controllers/user.controllers.js"
 import { userAuth } from "../middlewares/auth.middleware.js"
 import {userValidations} from '../utils/validators.js'
 
@@ -10,5 +10,6 @@ router.post('/login', Login)
 
 // Secure Routes
 router.get('/logout', userAuth, logout)
+router.get('/get-user', userAuth, getUser)
 
 export default router

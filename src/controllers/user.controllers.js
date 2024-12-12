@@ -85,8 +85,16 @@ const logout = asyncHandler(async (req, res) => {
     )
 })
 
+const getUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id).select("-password -__v -createdAt -updatedAt")
+    return res.status(200).json(
+        new ApiResponse(200, user, "User fetched successfully")
+    )
+})
+
 export {
     register,
     Login,
-    logout
+    logout,
+    getUser
 }
