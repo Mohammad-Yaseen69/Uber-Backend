@@ -3,12 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiResponse } from "../utils/apiResponse.js"
 import { ApiError } from "../utils/apiError.js"
 import { validationResult } from "express-validator"
-
-const cookieOptions = {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none"
-}
+import { cookieOptions } from "../constants.js";
 
 const generateTokenForCookies = async (user) => {
     try {

@@ -16,6 +16,7 @@ app.use(express.json())
 
 
 import userRouter from './routes/user.routes.js'
+import driverRouter from './routes/driver.routes.js'
 
 app.use('/api/v1/users', userRouter)
 
