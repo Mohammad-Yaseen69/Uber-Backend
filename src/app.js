@@ -21,4 +21,9 @@ import driverRouter from './routes/driver.routes.js'
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/driver', driverRouter)
 
+app.get("/api/v1/healthCheck", (req, res) => {
+    res.send("Server is running")
+})
+
+
 export default app
