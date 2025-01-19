@@ -21,20 +21,16 @@ const driverSchema = new mongoose.Schema({
     vehical: {
         color: {
             type: String,
-            required: true,
         },
         plate: {
             type: String,
-            required: true
         },
         capacity: {
             type: Number,
-            required: true,
             min: [1, , 'Capacity must be atleast 1']
         },
         vehicalType: {
             type: String,
-            required: true,
             enum: ['bike', 'car', 'auto']
         }
     },
