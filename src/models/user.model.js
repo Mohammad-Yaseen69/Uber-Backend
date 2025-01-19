@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    phoneNumber : {
+        type: String,
+        required: true
+    },
     profilePic: String,
     socketId: String
 }, { timestamps: true })

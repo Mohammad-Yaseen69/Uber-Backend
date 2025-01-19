@@ -1,12 +1,14 @@
 import { Router } from "express"
-import { Login, register, logout, getUser, updateUser } from "../controllers/user.controllers.js"
+import { Login, register, logout, getUser, updateUser, resendOtp, verifyOtp } from "../controllers/user.controllers.js"
 import { userAuth } from "../middlewares/auth.middleware.js"
 import {userValidations} from '../utils/validators.js'
-
+ 
 const router = Router()
 
 router.post('/register', userValidations.Register ,register)
 router.post('/login', Login)
+router.post("/verifyOtp", verifyOtp)
+router.post("/resendOtp" , resendOtp)
 
 // Secure Routes
 router.get('/logout', userAuth, logout)

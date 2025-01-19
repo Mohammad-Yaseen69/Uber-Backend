@@ -4,6 +4,9 @@ import { ApiResponse } from "../utils/apiResponse.js"
 import { ApiError } from "../utils/apiError.js"
 import { validationResult } from "express-validator"
 import { cookieOptions } from "../constants.js";
+import { generateOtp } from "../utils/generateOtp.js";
+import { Otp } from "../models/otp.model.js"
+import { sendEmail } from "../utils/sendEmail.js"
 
 const generateTokenForCookies = async (user) => {
     try {
@@ -16,8 +19,36 @@ const generateTokenForCookies = async (user) => {
     }
 }
 
+const createOtp = async (email) => {
+    const otp = await generateOtp()
+
+    const isOtpExist = await Otp.findOne({ otp, email })
+
+    if (isOtpExist) {
+        await isOtpExist.deleteOne()
+    }
+
+    const otpSended = await Otp.create({
+        otp: otp,
+        email: email
+    })
+
+    if (!otpSended) {
+        throw new ApiError(401, "Something went wrong while sending the otp")
+    }
+    await
+        sendEmail("Otp For Uber", "",
+            `
+        <div>
+        <p style="fontSize: "18px"; fontWeight: 600;> Your Otp For Creating Account on Uber is: <p/>
+        <p style="fontSize: "32px"> ${otp} <p/>
+        <p> This otp will expire in 1 hour </p>
+        </div>
+        `, email)
+}
+
 const register = asyncHandler(async (req, res) => {
-    const { fullName, email, password, profilePic } = req.body
+    const { fullName, email, phoneNumber, password } = req.body
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
@@ -30,23 +61,59 @@ const register = asyncHandler(async (req, res) => {
         throw new ApiError(400, "User already exists")
     }
 
-    const user = await User.create({
-        fullName,
-        email,
-        password,
-        profilePic: profilePic || ""
-    })
+    await createOtp(email)
 
-    if (!user) {
-        throw new ApiError(500, "Something went wrong")
-    }
-
-    const token = await generateTokenForCookies(user)
-
-    return res.status(201).cookie("token", token, cookieOptions).json(
-        new ApiResponse(201, user, "User created successfully")
+    return res.status(200).json(
+        new ApiResponse(200, null, "Otp Sent to your Email")
     )
 })
+
+const verifyOtp = asyncHandler(async (req, res) => {
+    const { otp } = req.body;
+    const { email, fullName, password, phoneNumber } = req.body.user || {};
+
+    if (!otp || !email) {
+        throw new ApiError(400, "OTP and Email are Required");
+    }
+
+    const otpExists = await Otp.findOne({ otp, email });
+
+    if (!otpExists) {
+        throw new ApiError(401, "Invalid OTP");
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+        if (!fullName || !password || !phoneNumber) {
+            throw new ApiError(400, "Please Provide fullName, password, and phoneNumber for Registration");
+        }
+
+        user = await User.create({
+            email,
+            fullName,
+            phoneNumber,
+            password,
+        });
+
+        await otpExists.deleteOne();
+
+        const token = await generateTokenForCookies(user);
+
+        return res.status(201).cookie("token", token).json(
+            new ApiResponse(201, "User Registered and Logged in Successfully", user)
+        );
+    } else {
+        await otpExists.deleteOne();
+
+        const token = await generateTokenForCookies(user);
+
+        return res.status(200).cookie("token", token).json(
+            new ApiResponse(200, "User Logged in Successfully", user)
+        );
+    }
+});
+
 
 const Login = asyncHandler(async (req, res) => {
     const { email, password } = req.body
@@ -67,12 +134,28 @@ const Login = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid Password")
     }
 
-    const token = await generateTokenForCookies(user)
 
-    return res.status(200).cookie("token", token, cookieOptions).json(
-        new ApiResponse(200, user, "User logged in successfully")
+    await createOtp(email)
+
+    return res.status(200).json(
+        new ApiResponse(200, user, "Otp Sent Please Check your Email")
     )
 })
+
+const resendOtp = asyncHandler(async (req, res) => {
+    const { email } = req.body
+
+    if (!email) {
+        throw new ApiError(400, "Email is Required")
+    }
+
+    await createOtp(email)
+
+    return res.status(200).json(
+        new ApiResponse(200, {} , "Otp Resent Successfully")
+    )
+})
+
 
 const logout = asyncHandler(async (req, res) => {
     res.clearCookie("token", cookieOptions)
@@ -110,5 +193,7 @@ export {
     Login,
     logout,
     getUser,
-    updateUser
+    updateUser,
+    verifyOtp,
+    resendOtp
 }
