@@ -12,7 +12,7 @@ router.post('/verifyOtp', verifyOtp)
 
 // Protected Routes
 router.get('/logout', userAuth, logout)
-router.put('/updateDetails', userAuth, driverValidations.AddDetails , addDetails)
+router.put('/addDetails', userAuth, driverValidations.AddDetails , addDetails)
 router.get('/profile', userAuth, getProfile)
 router.post('/update-profile', userAuth, updateProfile)
 

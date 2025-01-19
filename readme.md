@@ -1,13 +1,13 @@
 # User API Documentation
 
-This document outlines the API functionalities for user registration, login, and logout.
+This document outlines the API functionalities for user registration, login, OTP verification, and logout.
 
 ## 1. Register a User
 
 **Endpoint:** `/users/register`  
 **Method:** POST
 
-**Description:** This endpoint allows users to create a new account by providing their full name, email address, and password. It also generates a JWT token and sends it in a cookie.
+**Description:** This endpoint allows users to create a new account by providing their full name, email address, and password. It sends an OTP to the user's email for verification.
 
 **Request Body:**
 
@@ -15,29 +15,22 @@ This document outlines the API functionalities for user registration, login, and
 {
   "fullName": "John Doe",
   "email": "john.doe@example.com",
-  "password": "password123"
+  "password": "password123",
+  "phoneNumber": "032423290556"
 }
 ```
 - `fullName`: Minimum length of 3 characters.
 - `email`: Must be a valid email address.
 - `password`: Minimum length of 8 characters.
-- `profilePic` (Optional): Pfp URL from image bb servers.
+- `phoneNumber` Minimm length of 11 characters.
 
 **Response (Success):**
 
 ```json
 {
   "status": 201,
-  "data": {
-    "_id": "userId",
-    "fullName": "John Doe",
-    "email": "john.doe@example.com",
-    "profilePic": null,
-    "socketId": null,
-    "createdAt": "2024-12-11T12:34:56Z",
-    "updatedAt": "2024-12-11T12:34:56Z"
-  },
-  "message": "User created successfully"
+  "data": null,
+  "message": "Otp Sent to your Email"
 }
 ```
 
@@ -52,12 +45,92 @@ This document outlines the API functionalities for user registration, login, and
 
 ---
 
-## 2. Login User
+## 2. Verify OTP
+
+**Endpoint:** `/users/verifyOtp`  
+**Method:** POST
+
+**Description:** This endpoint verifies the OTP sent to the user's email during registration and Login.
+
+**Request Body:**
+
+***If Verifying verification OTP***
+```json
+{
+  "otp": "123456",
+  "user": {
+        "email": "yaseenyaseenali69@gmail.com",
+        "fullName":  "Yaseen",
+        "phoneNumber": "03243290556",
+        "password": "123456789"
+  }
+}
+```
+***If Verifying Login OTP***
+```json
+{
+  "otp": "123456",
+  "user": {
+      "email": "yaseenyaseenali69@gmail.com",
+  }
+}
+```
+
+
+**Response (Success):**
+
+***if registeration***
+```json
+{
+  "status": 201,
+  "data" : {
+    "_id": "678d179032f807be3cfd0a81",
+        "fullName": "Yaseen",
+        "email": "yaseenyaseenali69@gmail.com",
+        "password": "$2b$10$4uX1bR9o1YXST6MqXMrSNuEHTzUd8btSy0xxQtqMm74ShdxOA/I4.",
+        "status": "inactive",
+        "createdAt": "2025-01-19T15:17:36.898Z",
+        "updatedAt": "2025-01-19T15:17:36.898Z",
+        "__v": 0
+  }
+  "message": "User Registered Successfully"
+}
+```
+***if Login***
+```json
+{
+  "status": 201,
+  "data" : {
+    "_id": "678d179032f807be3cfd0a81",
+        "fullName": "Yaseen",
+        "email": "yaseenyaseenali69@gmail.com",
+        "password": "$2b$10$4uX1bR9o1YXST6MqXMrSNuEHTzUd8btSy0xxQtqMm74ShdxOA/I4.",
+        "status": "inactive",
+        "createdAt": "2025-01-19T15:17:36.898Z",
+        "updatedAt": "2025-01-19T15:17:36.898Z",
+        "__v": 0
+  }
+  "message": "User Logged in Successfully"
+}
+```
+
+**Response (Error):**
+
+```json
+{
+  "status": 400,
+  "message": "Invalid OTP"
+}
+```
+
+---
+
+## 3. Login User
 
 **Endpoint:** `/users/login`  
 **Method:** POST
 
-**Description:** This endpoint allows existing users to log in. Upon successful login, a JWT token is generated and sent in a cookie.
+**Description:** This Endpoint check user Details and sent an otp to their email.
 
 **Request Body:**
 
@@ -77,8 +150,9 @@ This document outlines the API functionalities for user registration, login, and
     "_id": "userId",
     "fullName": "John Doe",
     "email": "john.doe@example.com"
+    // Other User Data....
   },
-  "message": "User logged in successfully"
+  "message": "Otp Sent Please Check your Email"
 }
 ```
 
@@ -93,7 +167,7 @@ This document outlines the API functionalities for user registration, login, and
 
 ---
 
-## 3. Logout a User
+## 4. Logout a User
 
 **Endpoint:** `/users/logout`  
 **Method:** GET
@@ -121,7 +195,7 @@ This document outlines the API functionalities for user registration, login, and
 
 ---
 
-## 4. Fetch User Details
+## 5. Fetch User Details
 
 **Endpoint:** `/users/get-user`  
 **Method:** GET
@@ -146,7 +220,7 @@ This document outlines the API functionalities for user registration, login, and
 
 ---
 
-## 5. Update User
+## 6. Update User
 
 **Endpoint:** `/users/update-user`  
 **Method:** POST
@@ -190,19 +264,16 @@ The API uses a custom error handler (ApiError) for consistency. Errors are retur
 }
 ```
 
-
-
-
 # Driver API Documentation
 
-This document outlines the API functionalities for driver registration, login, and profile management.
+This document outlines the API functionalities for driver registration, login, OTP verification, and profile management.
 
 ## 1. Register Driver
 
-**Endpoint:** `/register`  
+**Endpoint:** `/driver/register`  
 **Method:** POST
 
-**Description:** Registers a new driver with their details.
+**Description:** Registers a new driver by sending an OTP to their email.
 
 **Request Body:**
 
@@ -211,11 +282,7 @@ This document outlines the API functionalities for driver registration, login, a
   "fullName": "John Doe",
   "email": "john.doe@example.com",
   "password": "password123",
-  "color": "Red",
-  "vehicalType": "car",
-  "capacity": 4,
-  "plate": "ABC1234",
-  "profilePic": "url-to-profile-pic"
+  "phoneNumber": "03243290556",
 }
 ```
 
@@ -224,24 +291,8 @@ This document outlines the API functionalities for driver registration, login, a
 ```json
 {
   "status": 201,
-  "data": {
-    "_id": "driverId",
-    "fullName": "John Doe",
-    "email": "john.doe@example.com",
-    "vehical": {
-      "color": "Red",
-      "vehicalType": "car",
-      "capacity": 4,
-      "plate": "ABC1234"
-    },
-    "profilePic": "url-to-profile-pic",
-    "status": "inactive",
-    "location": {
-      "latitude": null,
-      "longitude": null
-    }
-  },
-  "message": "Driver created successfully"
+  "data": null,
+  "message": "Otp Sent to your Email"
 }
 ```
 
@@ -256,12 +307,92 @@ This document outlines the API functionalities for driver registration, login, a
 
 ---
 
-## 2. Login Driver
+## 2. Verify OTP
 
-**Endpoint:** `/login`  
+**Endpoint:** `/driver/verifyOtp`  
 **Method:** POST
 
-**Description:** Logs in an existing driver and returns a JWT token in a cookie.
+**Description:** This endpoint verifies the OTP sent to the user's email during registration and Login.
+
+**Request Body:**
+
+***If Verifying verification OTP***
+```json
+{
+  "otp": "123456",
+  "user": {
+        "email": "yaseenyaseenali69@gmail.com",
+        "fullName":  "Yaseen",
+        "phoneNumber": "03243290556",
+        "password": "123456789"
+  }
+}
+```
+***If Verifying Login OTP***
+```json
+{
+  "otp": "123456",
+  "user": {
+      "email": "yaseenyaseenali69@gmail.com",
+  }
+}
+```
+
+
+**Response (Success):**
+
+***if registeration***
+```json
+{
+  "status": 201,
+  "data" : {
+    "_id": "678d179032f807be3cfd0a81",
+        "fullName": "Yaseen",
+        "email": "yaseenyaseenali69@gmail.com",
+        "password": "$2b$10$4uX1bR9o1YXST6MqXMrSNuEHTzUd8btSy0xxQtqMm74ShdxOA/I4.",
+        "status": "inactive",
+        "createdAt": "2025-01-19T15:17:36.898Z",
+        "updatedAt": "2025-01-19T15:17:36.898Z",
+        "__v": 0
+  }
+  "message": "User Registered Successfully"
+}
+```
+***if Login***
+```json
+{
+  "status": 201,
+  "data" : {
+    "_id": "678d179032f807be3cfd0a81",
+        "fullName": "Yaseen",
+        "email": "yaseenyaseenali69@gmail.com",
+        "password": "$2b$10$4uX1bR9o1YXST6MqXMrSNuEHTzUd8btSy0xxQtqMm74ShdxOA/I4.",
+        "status": "inactive",
+        "createdAt": "2025-01-19T15:17:36.898Z",
+        "updatedAt": "2025-01-19T15:17:36.898Z",
+        "__v": 0
+  }
+  "message": "User Logged in Successfully"
+}
+```
+
+**Response (Error):**
+
+```json
+{
+  "status": 400,
+  "message": "Invalid OTP"
+}
+```
+
+---
+
+## 3. Login Driver
+
+**Endpoint:** `/driver/login`  
+**Method:** POST
+
+**Description:** This Endpoint check driver Details and sent an otp to their email.
 
 **Request Body:**
 
@@ -278,11 +409,21 @@ This document outlines the API functionalities for driver registration, login, a
 {
   "status": 200,
   "data": {
-    "_id": "driverId",
+    "_id": "userId",
     "fullName": "John Doe",
     "email": "john.doe@example.com"
+    // Other Driver Data....
   },
-  "message": "Driver logged in successfully"
+  "message": "Otp Sent Please Check your Email"
+}
+```
+
+**Response (Error):**
+
+```json
+{
+  "status": 400,
+  "message": "Invalid credentials"
 }
 ```
 
@@ -297,9 +438,9 @@ This document outlines the API functionalities for driver registration, login, a
 
 ---
 
-## 3. Logout Driver
+## 4. Logout Driver
 
-**Endpoint:** `/logout`  
+**Endpoint:** `/driver/logout`  
 **Method:** GET
 
 **Description:** Logs out the driver by clearing the token cookie.
@@ -315,9 +456,9 @@ This document outlines the API functionalities for driver registration, login, a
 
 ---
 
-## 4. Get Driver Profile
+## 5. Get Driver Profile
 
-**Endpoint:** `/profile`  
+**Endpoint:** `/driver/profile`  
 **Method:** GET  
 **Authentication:** Required (JWT Token)
 
@@ -360,9 +501,54 @@ This document outlines the API functionalities for driver registration, login, a
 
 ---
 
-## 5. Update Driver Profile
+## 6. Add Details
+**Endpoint:** `/driver/addDetails`  
+**Method:** PUT  
+**Authentication:** Required (JWT Token)
 
-**Endpoint:** `/update-profile`  
+**Description** Add Vehical Details and Profile Picture of Driver.
+
+**Request Body:**  
+***Every Field is Required***
+```json
+{
+    "capacity": 4,
+    "color": "black", // You can also Provide color codes here
+    "vehicalType": "car",
+    "plate": "KPK 4662",
+    "profilePic": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRl8HD2L9NQ3JugxDOW9Uu9X5FVfnTgJRvn0Q&s"
+}
+
+```
+
+**Response (Success):**
+```json
+{
+  "status": 200,
+  "data": {
+    "_id": "driverId",
+    "fullName": "Johnathan Doe",
+    "email": "johnathan.doe@example.com",
+    "vehical": {
+      "color": "black",
+      "vehicalType": "car",
+      "capacity": 4,
+      "plate": "KPK 4662"
+    },
+    "profilePic": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRl8HD2L9NQ3JugxDOW9Uu9X5FVfnTgJRvn0Q&s",
+    "status": "inactive",
+    "location": {
+      "latitude": null,
+      "longitude": null
+    }
+  },
+  "message": "Driver Details Updated"
+}
+```
+
+## 7. Update Driver Profile
+
+**Endpoint:** `/driver/update-profile`  
 **Method:** POST  
 **Authentication:** Required (JWT Token)
 
@@ -384,9 +570,7 @@ This document outlines the API functionalities for driver registration, login, a
 
 ```
 
-
-
-**Response (Success)**
+**Response (Success):**
 ```json
 {
   "status": 200,
@@ -401,14 +585,16 @@ This document outlines the API functionalities for driver registration, login, a
       "plate": "XYZ9876"
     },
     "profilePic": "new-url-to-profile-pic",
-    "status" :"inactive" "location": {
+    "status": "inactive",
+    "location": {
       "latitude": null,
       "longitude": null
     }
   },
-  "message": "Driver profile fetched successfully"
+  "message": "Driver profile updated successfully"
 }
 ```
+
 ### Types of Errors:
 - **400 Bad Request**: Invalid input or missing required fields.
 - **401 Unauthorized Request**: When trying to request a protected route only accessible with a token.
