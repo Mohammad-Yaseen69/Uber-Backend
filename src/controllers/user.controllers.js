@@ -101,7 +101,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
         const token = await generateTokenForCookies(user);
 
         return res.status(201).cookie("token", token).json(
-            new ApiResponse(201, "User Registered and Logged in Successfully", user)
+            new ApiResponse(201, user,  "User Registered Successfully",)
         );
     } else {
         await otpExists.deleteOne();
@@ -109,7 +109,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
         const token = await generateTokenForCookies(user);
 
         return res.status(200).cookie("token", token).json(
-            new ApiResponse(200, "User Logged in Successfully", user)
+            new ApiResponse(200, user, "User Logged in Successfully")
         );
     }
 });
