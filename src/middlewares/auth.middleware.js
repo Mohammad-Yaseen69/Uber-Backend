@@ -20,7 +20,7 @@ const userAuth = asyncHandler(async (req, res, next) => {
         req.driver = driver
     }
     if (!user && !driver) {
-        throw new ApiError(404, "Something went wrong")
+        throw new ApiError(404, "Something went wrongg`")
     }
 
     next()

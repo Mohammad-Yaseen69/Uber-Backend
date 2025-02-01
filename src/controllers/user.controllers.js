@@ -101,7 +101,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(user);
 
-        return res.status(201).cookie("token", token).json(
+        return res.status(201).cookie("token", token, cookieOptions).json(
             new ApiResponse(201, user,  "User Registered Successfully",)
         );
     } else {
@@ -109,7 +109,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(user);
 
-        return res.status(200).cookie("token", token).json(
+        return res.status(200).cookie("token", token ,cookieOptions).json(
             new ApiResponse(200, user, "User Logged in Successfully")
         );
     }
@@ -178,13 +178,6 @@ const updateUser = asyncHandler(async (req, res) => {
 
     const obj = {}
 
-    if (profilePic) {
-        const uploadedImage = await uploadImage(profilePic)
-        if(uploadedImage.ok){
-            obj.profilePic = uploadedImage.response?.url
-        }
-    }
-
     if((req.user?.profilePic && profilePic) || (req.user?.profilePic && isDeletingPfp) ){
         const parts = req.user?.profilePic.split("/")
         const publicPath = `${parts[parts.length - 2]}/${parts[parts.length - 1].split(".")[0]}`
@@ -193,6 +186,14 @@ const updateUser = asyncHandler(async (req, res) => {
             obj.profilePic = ""
         }
     }
+
+    if (profilePic) {
+        const uploadedImage = await uploadImage(profilePic)
+        if(uploadedImage.ok){
+            obj.profilePic = uploadedImage.response?.url
+        }
+    }
+
     
     if (fullName) obj.fullName = fullName
 

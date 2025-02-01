@@ -8,7 +8,7 @@ import { cookieOptions } from '../constants.js';
 import { generateOtp } from "../utils/generateOtp.js";
 import { Otp } from "../models/otp.model.js";
 import { sendEmail } from "../utils/sendEmail.js";
-import { deleteImage, uploadImage } from "../utils/cloudinary.js";
+import {deleteImage, uploadImage} from "../utils/cloudinary.js"
 
 const generateTokenForCookies = async (driver) => {
     try {
@@ -101,7 +101,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(driver);
 
-        return res.status(201).cookie("token", token).json(
+        return res.status(201).cookie("token", token, cookieOptions).json(
             new ApiResponse(201, "Driver Registered and Logged in Successfully", driver)
         );
     } else {
@@ -109,7 +109,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(driver);
 
-        return res.status(200).cookie("token", token).json(
+        return res.status(200).cookie("token", token, cookieOptions).json(
             new ApiResponse(200, "Driver Logged in Successfully", driver)
         );
     }
@@ -185,7 +185,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 });
 
 const logout = asyncHandler(async (req, res) => {
-    res.status(200).clearCookie('token').json(
+    res.status(200).clearCookie('token', cookieOptions).json(
         new ApiResponse(200, {}, "Driver logged out successfully")
     );
 });
@@ -212,13 +212,6 @@ const updateProfile = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Driver does not exist");
     }
 
-    if (profilePic) {
-        const uploadedImage = await uploadImage(profilePic)
-        if(uploadedImage.ok){
-            driver.profilePic = uploadedImage.response?.url
-        }
-    }
-
     if((driver?.profilePic && profilePic) || (driver?.profilePic && isDeletingPfp)){
         const parts = driver?.profilePic.split("/")
         const publicPath = `${parts[parts.length - 2]}/${parts[parts.length - 1].split(".")[0]}`
@@ -227,6 +220,14 @@ const updateProfile = asyncHandler(async (req, res) => {
             driver.profilePic = ""
         }
     }
+
+    if (profilePic) {
+        const uploadedImage = await uploadImage(profilePic)
+        if(uploadedImage.ok){
+            driver.profilePic = uploadedImage.response?.url
+        }
+    }
+  
 
     driver.fullName = fullName || driver.fullName;
     driver.email = email || driver.email;
