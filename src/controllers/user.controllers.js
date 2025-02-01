@@ -7,6 +7,7 @@ import { cookieOptions } from "../constants.js";
 import { generateOtp } from "../utils/generateOtp.js";
 import { Otp } from "../models/otp.model.js"
 import { sendEmail } from "../utils/sendEmail.js"
+import {deleteImage, uploadImage} from "../utils/cloudinary.js"
 
 const generateTokenForCookies = async (user) => {
     try {
@@ -172,19 +173,35 @@ const getUser = asyncHandler(async (req, res) => {
 })
 
 const updateUser = asyncHandler(async (req, res) => {
-    const { fullName, profilePic } = req.body
+    const { fullName, isDeletingPfp } = req.body
+    const profilePic = req.file?.path
 
     const obj = {}
 
-    if (fullName) obj.fullName = fullName
-    if (profilePic) obj.profilePic = profilePic
+    if (profilePic) {
+        const uploadedImage = await uploadImage(profilePic)
+        if(uploadedImage.ok){
+            obj.profilePic = uploadedImage.response?.url
+        }
+    }
 
-    const user = await User.findByIdAndUpdate(
+    if((req.user?.profilePic && profilePic) || (req.user?.profilePic && isDeletingPfp) ){
+        const parts = req.user?.profilePic.split("/")
+        const publicPath = `${parts[parts.length - 2]}/${parts[parts.length - 1].split(".")[0]}`
+        await deleteImage(publicPath)
+        if(isDeletingPfp){
+            obj.profilePic = ""
+        }
+    }
+    
+    if (fullName) obj.fullName = fullName
+
+    const userUpdated = await User.findByIdAndUpdate(
         req.user._id, obj,
         { new: true }).select("-password -__v -createdAt -updatedAt")
 
     return res.status(200).json(
-        new ApiResponse(200, user, "User updated successfully")
+        new ApiResponse(200, userUpdated, "User updated successfully")
     )
 })
 
