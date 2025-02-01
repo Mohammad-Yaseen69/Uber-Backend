@@ -8,6 +8,7 @@ import { cookieOptions } from '../constants.js';
 import { generateOtp } from "../utils/generateOtp.js";
 import { Otp } from "../models/otp.model.js";
 import { sendEmail } from "../utils/sendEmail.js";
+import { deleteImage, uploadImage } from "../utils/cloudinary.js";
 
 const generateTokenForCookies = async (driver) => {
     try {
@@ -202,17 +203,29 @@ const getProfile = asyncHandler(async (req, res) => {
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
-    const { fullName, email, password, color, vehicalType, capacity, plate, profilePic } = req.body;
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        throw new ApiError(400, errors.array()[0].msg);
-    }
+    const { fullName, email, password, color, vehicalType, capacity, plate, isDeletingPfp } = req.body;
+    const profilePic = req.file?.path
 
     const driver = await Driver.findById(req.driver._id);
 
     if (!driver) {
         throw new ApiError(400, "Driver does not exist");
+    }
+
+    if (profilePic) {
+        const uploadedImage = await uploadImage(profilePic)
+        if(uploadedImage.ok){
+            driver.profilePic = uploadedImage.response?.url
+        }
+    }
+
+    if((driver?.profilePic && profilePic) || (driver?.profilePic && isDeletingPfp)){
+        const parts = driver?.profilePic.split("/")
+        const publicPath = `${parts[parts.length - 2]}/${parts[parts.length - 1].split(".")[0]}`
+        await deleteImage(publicPath)
+        if(isDeletingPfp){
+            driver.profilePic = ""
+        }
     }
 
     driver.fullName = fullName || driver.fullName;
@@ -222,12 +235,13 @@ const updateProfile = asyncHandler(async (req, res) => {
     driver.vehical.vehicalType = vehicalType || driver.vehical.vehicalType;
     driver.vehical.capacity = capacity || driver.vehical.capacity;
     driver.vehical.plate = plate || driver.vehical.plate;
-    driver.profilePic = profilePic || driver.profilePic;
 
     await driver.save();
 
+    const driverToReturn = await Driver.findById(driver._id).select("-password -__v -createdAt -updatedAt")
+
     res.status(200).json(
-        new ApiResponse(200, driver, "Driver profile updated successfully")
+        new ApiResponse(200, driverToReturn, "Driver profile updated successfully")
     );
 });
 
