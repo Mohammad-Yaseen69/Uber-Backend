@@ -79,7 +79,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
     const otpExists = await Otp.findOne({ otp, email });
 
     if (!otpExists) {
-        throw new ApiError(401, "Invalid OTP");
+        throw new ApiError(400, "Invalid OTP");
     }
 
     let user = await User.findOne({ email });

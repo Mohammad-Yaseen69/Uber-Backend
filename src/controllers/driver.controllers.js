@@ -40,7 +40,7 @@ const createOtp = async (email) => {
     await sendEmail("Otp For Uber", "",
         `
         <div>
-        <p style="fontSize: "18px"; fontWeight: 600;> Your Otp For Creating Account on Uber is: <p/>
+        <p style="fontSize: "18px"; fontWeight: 600;> Your Otp is: <p/>
         <p style="fontSize: "32px"> ${otp} <p/>
         <p> This otp will expire in 1 hour </p>
         </div>
@@ -70,7 +70,7 @@ const register = asyncHandler(async (req, res) => {
 
 const verifyOtp = asyncHandler(async (req, res) => {
     const { otp } = req.body;
-    const { email, fullName, password, phoneNumber } = req.body.driver || {};
+    const { email, fullName, password, phoneNumber } = req.body.user || {};
 
     if (!otp || !email) {
         throw new ApiError(400, "OTP and Email are Required");
@@ -79,7 +79,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
     const otpExists = await Otp.findOne({ otp, email });
 
     if (!otpExists) {
-        throw new ApiError(401, "Invalid OTP");
+        throw new ApiError(400, "Invalid OTP");
     }
 
     let driver = await Driver.findOne({ email });
