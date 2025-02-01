@@ -225,16 +225,15 @@ This document outlines the API functionalities for user registration, login, OTP
 **Endpoint:** `/users/update-user`  
 **Method:** POST
 
-**Description:** This endpoint allows authenticated users to update their user information, such as their full name and profile picture.
+**Description:** This endpoint allows authenticated users to update their user information and profile picture. Profile images are uploaded to Cloudinary.
+
+**Request Headers:**
+- `Content-Type`: multipart/form-data
 
 **Request Body:**
-
-```json
-{
-  "fullName": "John Doe Updated",
-  "profilePic": "newProfilePicUrl"
-}
-```
+- `fullName` (optional): Updated full name
+- `pfp` (optional): Profile picture file (image)
+- `isDeletingPfp` (optional): Boolean to indicate if profile picture should be deleted
 
 **Response (Success):**
 
@@ -244,7 +243,7 @@ This document outlines the API functionalities for user registration, login, OTP
   "data": {
     "_id": "userId",
     "fullName": "John Doe Updated",
-    "profilePic": "newProfilePicUrl",
+    "profilePic": "https://res.cloudinary.com/xxx/image/upload/v1/Uber/xxx",
     "updatedAt": "2024-12-11T12:45:56Z"
   },
   "message": "User updated successfully"
@@ -552,23 +551,21 @@ This document outlines the API functionalities for driver registration, login, O
 **Method:** POST  
 **Authentication:** Required (JWT Token)
 
-**Description:** Updates the driver's profile information.
+**Description:** Updates the driver's profile information including profile picture. Images are uploaded to Cloudinary.
 
-**Request Body:**  
-***Every Field is Optional***
-```json
-{
-  "fullName": "Johnathan Doe",
-  "email": "johnathan.doe@example.com",
-  "password": "newpassword123",
-  "color": "Blue",
-  "vehicalType": "bike",
-  "capacity": 2,
-  "plate": "XYZ9876",
-  "profilePic": "new-url-to-profile-pic"
-}
+**Request Headers:**
+- `Content-Type`: multipart/form-data
 
-```
+**Request Body:**
+- `fullName` (optional): Updated full name
+- `email` (optional): Updated email
+- `password` (optional): New password
+- `color` (optional): Vehicle color
+- `vehicalType` (optional): Type of vehicle
+- `capacity` (optional): Vehicle capacity
+- `plate` (optional): Vehicle plate number
+- `pfp` (optional): Profile picture file (image)
+- `isDeletingPfp` (optional): Boolean to indicate if profile picture should be deleted
 
 **Response (Success):**
 ```json
@@ -584,7 +581,7 @@ This document outlines the API functionalities for driver registration, login, O
       "capacity": 2,
       "plate": "XYZ9876"
     },
-    "profilePic": "new-url-to-profile-pic",
+    "profilePic": "https://res.cloudinary.com/xxx/image/upload/v1/Uber/xxx",
     "status": "inactive",
     "location": {
       "latitude": null,
