@@ -21,6 +21,5 @@ export const driverValidations = {
         body('vehicalType').isIn(['bike', 'auto', 'car']).withMessage("Vehical Type must be either bike, auto or car"),
         body('plate').isLength({min: 3}).withMessage("Plate must be at least 8 characters long"),
         body('color').notEmpty().withMessage("Color is required"),
-        body('profilePic').notEmpty().withMessage("You Must have a Profile Picture to Signup as a driver")
     ]
 }

@@ -13,8 +13,8 @@ router.post('/verifyOtp', verifyOtp)
 
 // Protected Routes
 router.get('/logout', userAuth, logout)
-router.put('/addDetails', userAuth, driverValidations.AddDetails , addDetails)
+router.post('/addDetails', userAuth, driverValidations.AddDetails , addDetails)
 router.get('/profile', userAuth, getProfile)
-router.post('/update-profile', userAuth, upload.single("pfp"), updateProfile)
+router.post('/update-user', userAuth, upload.single("pfp"), updateProfile)
 
 export default router

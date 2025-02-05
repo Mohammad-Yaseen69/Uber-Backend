@@ -142,7 +142,7 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const addDetails = asyncHandler(async (req, res) => {
-    const { color, vehicalType, plate, capacity, profilePic } = req.body
+    const { color, vehicalType, plate, capacity } = req.body
     const driver = await Driver.findById(req.driver?._id)
 
     if (!driver) {
@@ -161,7 +161,6 @@ const addDetails = asyncHandler(async (req, res) => {
         plate,
         capacity
     }
-    driver.profilePic = profilePic
 
     await driver.save({ validateBeforeSave: false })
 
