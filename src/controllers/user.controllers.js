@@ -101,7 +101,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(user);
 
-        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" }).json(
+        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000, secure: true, sameSite: "strict" }).json(
             new ApiResponse(201, user, "User Registered Successfully",)
         );
     } else {
@@ -109,7 +109,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(user);
 
-        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" }).json(
+        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000, secure: true, sameSite: "strict" }).json(
             new ApiResponse(200, user, "User Logged in Successfully")
         );
     }
@@ -160,20 +160,32 @@ const resendOtp = asyncHandler(async (req, res) => {
 
 const logout = asyncHandler(async (req, res) => {
     res.clearCookie("token", cookieOptions)
-    res.clearCookie("loggedIn",{ maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" })
+    res.clearCookie("loggedIn", { maxAge: 30 * 24 * 60 * 60 * 1000, secure: true, sameSite: "strict" })
     return res.status(200).json(
         new ApiResponse(200, {}, "User logged out successfully")
     )
 })
 
-const getUser = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id).select("-password -__v -createdAt -updatedAt")
+const getUser = asyncHandler(async (req, res) => {  
+    let data = {
+        type: "",
+        data: null
+    }
+
+    if (req.user) {
+        data = {
+            type: "User",
+            data: req.user
+        }
+    }
+    else if (req.driver) {
+        data = {
+            type: "Driver",
+            data: req.driver
+        }
+    }
     return res.status(200).json(
-        new ApiResponse(200,
-            {
-                type: "User",
-                data: user
-            }, "User fetched successfully")
+        new ApiResponse(200, data, "User fetched successfully")
     )
 })
 
