@@ -5,7 +5,10 @@ import { ApiError } from "../utils/apiError.js";
 import jwt from "jsonwebtoken"
 
 const userAuth = asyncHandler(async (req, res, next) => {
-    const token = req.cookies.token
+    if(req.cookie.token && req.cookie.driver_token){
+        throw new ApiError(400, "You can't use the app with both user and driver account logged in at the same time")
+    }
+    const token = req.cookies.token || req.cookie.driver_token
     if (!token) {
         throw new ApiError(401, "Unauthorized Request")
     }

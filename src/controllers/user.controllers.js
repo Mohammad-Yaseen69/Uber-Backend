@@ -7,7 +7,7 @@ import { cookieOptions } from "../constants.js";
 import { generateOtp } from "../utils/generateOtp.js";
 import { Otp } from "../models/otp.model.js"
 import { sendEmail } from "../utils/sendEmail.js"
-import {deleteImage, uploadImage} from "../utils/cloudinary.js"
+import { deleteImage, uploadImage } from "../utils/cloudinary.js"
 
 const generateTokenForCookies = async (user) => {
     try {
@@ -101,15 +101,15 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(user);
 
-        return res.status(201).cookie("token", token, cookieOptions).json(
-            new ApiResponse(201, user,  "User Registered Successfully",)
+        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" }).json(
+            new ApiResponse(201, user, "User Registered Successfully",)
         );
     } else {
         await otpExists.deleteOne();
 
         const token = await generateTokenForCookies(user);
 
-        return res.status(200).cookie("token", token ,cookieOptions).json(
+        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" }).json(
             new ApiResponse(200, user, "User Logged in Successfully")
         );
     }
@@ -153,13 +153,14 @@ const resendOtp = asyncHandler(async (req, res) => {
     await createOtp(email)
 
     return res.status(200).json(
-        new ApiResponse(200, {} , "Otp Resent Successfully")
+        new ApiResponse(200, {}, "Otp Resent Successfully")
     )
 })
 
 
 const logout = asyncHandler(async (req, res) => {
     res.clearCookie("token", cookieOptions)
+    res.clearCookie("loggedIn",{ maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" })
     return res.status(200).json(
         new ApiResponse(200, {}, "User logged out successfully")
     )
@@ -168,7 +169,11 @@ const logout = asyncHandler(async (req, res) => {
 const getUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id).select("-password -__v -createdAt -updatedAt")
     return res.status(200).json(
-        new ApiResponse(200, user, "User fetched successfully")
+        new ApiResponse(200,
+            {
+                type: "User",
+                data: user
+            }, "User fetched successfully")
     )
 })
 
@@ -178,23 +183,23 @@ const updateUser = asyncHandler(async (req, res) => {
 
     const obj = {}
 
-    if((req.user?.profilePic && profilePic) || (req.user?.profilePic && isDeletingPfp) ){
+    if ((req.user?.profilePic && profilePic) || (req.user?.profilePic && isDeletingPfp)) {
         const parts = req.user?.profilePic.split("/")
         const publicPath = `${parts[parts.length - 2]}/${parts[parts.length - 1].split(".")[0]}`
         await deleteImage(publicPath)
-        if(isDeletingPfp){
+        if (isDeletingPfp) {
             obj.profilePic = ""
         }
     }
 
     if (profilePic) {
         const uploadedImage = await uploadImage(profilePic)
-        if(uploadedImage.ok){
+        if (uploadedImage.ok) {
             obj.profilePic = uploadedImage.response?.url
         }
     }
 
-    
+
     if (fullName) obj.fullName = fullName
 
     const userUpdated = await User.findByIdAndUpdate(
