@@ -101,7 +101,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(user);
 
-        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000, secure: true, sameSite: "strict" }).json(
+        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000, secure: true, sameSite: "strict" }).cookie("loggedInAs", "user", {...cookieOptions,  httpOnly: false}).json(
             new ApiResponse(201, user, "User Registered Successfully",)
         );
     } else {
@@ -109,7 +109,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(user);
 
-        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000, secure: true, sameSite: "strict" }).json(
+        return res.status(201).cookie("token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000, secure: true, sameSite: "strict" }).cookie("loggedInAs", "user", {...cookieOptions,  httpOnly: false}).json(
             new ApiResponse(200, user, "User Logged in Successfully")
         );
     }
@@ -161,6 +161,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 const logout = asyncHandler(async (req, res) => {
     res.clearCookie("token", cookieOptions)
     res.clearCookie("loggedIn", { maxAge: 30 * 24 * 60 * 60 * 1000, secure: true, sameSite: "strict" })
+    res.clearCookie("loggedInAs", {...cookieOptions, httpOnly: false})
     return res.status(200).json(
         new ApiResponse(200, {}, "User logged out successfully")
     )
@@ -174,13 +175,13 @@ const getUser = asyncHandler(async (req, res) => {
 
     if (req.user) {
         data = {
-            type: "User",
+            type: "user",
             data: req.user
         }
     }
     else if (req.driver) {
         data = {
-            type: "Driver",
+            type: "driver",
             data: req.driver
         }
     }

@@ -101,7 +101,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(driver);
 
-        return res.status(201).cookie("driver_token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" }).json(
+        return res.status(201).cookie("driver_token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" }).cookie("loggedInAs", "driver", {...cookieOptions,  httpOnly: false}).json(
             new ApiResponse(201, "Driver Registered and Logged in Successfully", driver)
         );
     } else {
@@ -109,7 +109,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
         const token = await generateTokenForCookies(driver);
 
-        return res.status(201).cookie("driver_token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" }).json(
+        return res.status(201).cookie("driver_token", token, cookieOptions).cookie("loggedIn", true, { maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" }).cookie("loggedInAs", "driver", {...cookieOptions,  httpOnly: false}).json(
             new ApiResponse(200, "Driver Logged in Successfully", driver)
         );
     }
@@ -184,7 +184,7 @@ const resendOtp = asyncHandler(async (req, res) => {
 });
 
 const logout = asyncHandler(async (req, res) => {
-    res.status(200).clearCookie('driver_token', cookieOptions).clearCookie('loggedIn', { maxAge: 30 * 24 * 60 * 60 * 1000 , secure: true, sameSite: "strict" }).json(
+    res.status(200).clearCookie('driver_token', cookieOptions).clearCookie('loggedIn', { ...cookieOptions, httpOnly: false }).clearCookie("loggedInAs",{ ...cookieOptions, httpOnly: false }).json(
         new ApiResponse(200, {}, "Driver logged out successfully")
     );
 });
